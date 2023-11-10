@@ -73,4 +73,22 @@ export function InfiniteHits({ hitComponent: HitComponent, ...props }: any) {
       </AutoSizer>
     </div>
   );
+
+  // Uncomment this to use the old version of InfiniteHits
+  //   return (
+  //       <div className="ais-InfiniteHits">
+  //           <ul className="ais-InfiniteHits-list">
+  //               {hits.map((hit) => (
+  //                   <li key={hit.objectID} className="ais-InfiniteHits-item">
+  //                       <HitComponent hit={hit} />
+  //                   </li>
+  //               ))}
+  //               <li
+  //                   className="ais-InfiniteHits-sentinel"
+  //                   ref={sentinelRef}
+  //                   aria-hidden="true"
+  //               />
+  //           </ul>
+  //       </div>
+  //   );
 }
