@@ -12,9 +12,11 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-instantsearch-hooks-web": "^6.47.2",
+    "react-virtualized": "^9.22.5",
     "tslib": "^2.3.0"
   },
   "devDependencies": {
+    "@types/react-virtualized": "^9.21.27",
     "@babel/preset-react": "^7.14.5",
     "@nrwl/eslint-plugin-nx": "16.5.5",
     "@nx/cypress": "16.5.5",

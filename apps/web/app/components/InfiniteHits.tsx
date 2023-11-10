@@ -1,7 +1,10 @@
-import React, { useEffect, useRef } from 'react';
-import { useInfiniteHits } from 'react-instantsearch-hooks-web';
+import React, { useEffect, useRef, useCallback } from "react";
+import { useInfiniteHits } from "react-instantsearch-hooks-web";
+import { Grid, AutoSizer, ScrollParams } from "react-virtualized";
 
 export function InfiniteHits({ hitComponent: HitComponent, ...props }: any) {
+  const rowHeight = 180;
+  const columnCount = 3;
   const { hits, isLastPage, showMore } = useInfiniteHits(props);
   const sentinelRef = useRef(null);
 
@@ -23,20 +26,51 @@ export function InfiniteHits({ hitComponent: HitComponent, ...props }: any) {
     };
   }, [isLastPage, showMore]);
 
+  const renderCell = useCallback(
+    ({ columnIndex, key, rowIndex, style }: any) => {
+      const index = rowIndex * columnCount + columnIndex;
+      const hit = hits[index];
+
+      return (
+        <div key={hit.objectID} className="ais-InfiniteHits-item" style={style}>
+          <HitComponent hit={hit} />
+        </div>
+      );
+    },
+    [hits]
+  );
+
+  const onScroll = useCallback(
+    ({ scrollTop, clientHeight, scrollHeight }: ScrollParams) => {
+      const isEnd =
+        clientHeight + scrollTop >= scrollHeight - rowHeight * rowHeight;
+
+      const isFirstRender = hits.length === 0 && isLastPage;
+
+      if (!isLastPage && isEnd) {
+        showMore();
+      }
+    },
+    [isLastPage, showMore]
+  );
+
   return (
     <div className="ais-InfiniteHits">
-      <ul className="ais-InfiniteHits-list">
-        {hits.map((hit) => (
-          <li key={hit.objectID} className="ais-InfiniteHits-item">
-            <HitComponent hit={hit} />
-          </li>
-        ))}
-        <li
-          className="ais-InfiniteHits-sentinel"
-          ref={sentinelRef}
-          aria-hidden="true"
-        />
-      </ul>
+      <AutoSizer defaultHeight={600} disableHeight>
+        {({ height, width }) => (
+          <Grid
+            height={height ?? 600}
+            rowCount={hits.length / columnCount}
+            width={width}
+            columnWidth={width / columnCount}
+            rowHeight={rowHeight}
+            columnCount={columnCount}
+            cellRenderer={renderCell}
+            className="ais-InfiniteHits-list"
+            onScroll={onScroll}
+          />
+        )}
+      </AutoSizer>
     </div>
   );
 }
