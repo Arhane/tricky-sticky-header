@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useCallback } from "react";
 import { useInfiniteHits } from "react-instantsearch-hooks-web";
 import { Grid, AutoSizer, ScrollParams } from "react-virtualized";
+import { throttle } from "lodash";
 
 export function InfiniteHits({ hitComponent: HitComponent, ...props }: any) {
   const rowHeight = 180;
-  const columnCount = 3;
+  const columnCount = 3; // Changed from 4 to 3 to better fit the screen
   const { hits, isLastPage, showMore } = useInfiniteHits(props);
   const sentinelRef = useRef(null);
 
@@ -42,10 +43,7 @@ export function InfiniteHits({ hitComponent: HitComponent, ...props }: any) {
 
   const onScroll = useCallback(
     ({ scrollTop, clientHeight, scrollHeight }: ScrollParams) => {
-      const isEnd =
-        clientHeight + scrollTop >= scrollHeight - rowHeight * rowHeight;
-
-      const isFirstRender = hits.length === 0 && isLastPage;
+      const isEnd = clientHeight + scrollTop >= scrollHeight - rowHeight;
 
       if (!isLastPage && isEnd) {
         showMore();
@@ -53,6 +51,8 @@ export function InfiniteHits({ hitComponent: HitComponent, ...props }: any) {
     },
     [isLastPage, showMore]
   );
+
+  const throttleOnScroll = useCallback(throttle(onScroll, 200), [onScroll]);
 
   return (
     <div className="ais-InfiniteHits">
@@ -67,7 +67,7 @@ export function InfiniteHits({ hitComponent: HitComponent, ...props }: any) {
             columnCount={columnCount}
             cellRenderer={renderCell}
             className="ais-InfiniteHits-list"
-            onScroll={onScroll}
+            onScroll={throttleOnScroll}
           />
         )}
       </AutoSizer>
